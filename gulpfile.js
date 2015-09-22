@@ -2,16 +2,19 @@ var gulp = require('gulp');
 var nodemon = require('gulp-nodemon');
 var istanbul = require('gulp-istanbul');
 var jshint = require('gulp-jshint');
-//var gulp-jshint-html-reporter=require('gulp-jshint-html-reporter');
 var mocha = require('gulp-mocha');
- var nightwatch=require('gulp-nightwatch');
-
+var sonar=require('gulp-sonar');
+var util = require('util');
+var gulp = require('gulp'),
+    nightwatch = require('gulp-nightwatch');
+//var nightwatch=require('gulp-nightwatch');
+ 
 gulp.task('run', function(){
     nodemon({
-        script: 'server.js',
+        script: 'app.js',
         ext: 'js',
         env: {
-            PORT:3003
+            PORT:3010
         },
         ignore: ['./node_modules/**']
     })
@@ -21,29 +24,14 @@ gulp.task('run', function(){
 });
 
 
-/*gulp.task('lint', function() {
-  return gulp.src(('./routes/*.js'))
+gulp.task('lint', function() {
+  return gulp.src('*.js')
     .pipe(jshint())
     .pipe(jshint.reporter('gulp-jshint-html-reporter', {
       filename: 'jshint-report' + '/jshint-output.html',
       
     }));
-});*/
-
-gulp.task('lint', function() {
-  return  gulp.src([
-    'routes/employees.js',
-    'test/mochatest.js'
-    ,'*.js'
-  ])
-    .pipe(jshint())
-    .pipe(jshint.reporter('gulp-jshint-html-reporter', {
-      filename: 'jshint-report' + '/jshint-output.html',
-      createMissingFolders : false  
-    }
-	));
 });
-
 
  
 gulp.task('mocha', function () {
@@ -57,38 +45,60 @@ gulp.task('mocha', function () {
     mode: 'Verbose'}));
 });
 
-/*gulp.task('test', function () {
-  gulp.src(['routes/employess.js',
-    'test/mochatest.js','*.js'])
+
+
+gulp.task('test', function () {
+  gulp.src(['*.js'])
     .pipe(istanbul()) // Covering files
     .pipe(istanbul.hookRequire()) // Force `require` to return covered files
 
         .pipe(istanbul.writeReports()) // Creating the reports after tests ran
      .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 } })) // Enforce a coverage of at least 90%
        // .on('end', cb);
-});*/
-
-gulp.task('test', function (cb) {
-  gulp.src(['routes/**/*.js', '*.js'])
-    .pipe(istanbul()) // Covering files
-    .pipe(istanbul.hookRequire()) // Force `require` to return covered files
-    .on('finish', function () {
-      gulp.src(['test/*.js'])
-        .pipe(istanbul.writeReports()) // Creating the reports after tests ran
-        .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 } })) // Enforce a coverage of at least 90%
-        .on('end', cb);
-    });
 });
 
-gulp.task('nightwatch',function(){
-return gulp.src('nightwatch.js')
+
+
+
+gulp.task('sonar', function () {
+    var options = {
+        sonar: {
+            host: {
+                url: 'http://localhost:9000'
+            },
+           /* jdbc: {
+                url: 'jdbc:mysql://localhost:3306/sonar',
+                username: 'sonar',
+                password: 'sonar'
+            },*/
+            projectKey: 'sonar:my-project:1.0.0',
+            projectName: 'AngularProject',
+            projectVersion: '1.0.0',
+            // comma-delimited string of source directories 
+            sources: 'app.js',
+            language: 'js',
+            sourceEncoding: 'UTF-8',
+            javascript: {
+                lcov: {
+                    reportPath: 'sonar_report/lcov.info'
+                }
+            }
+        }
+    }
+ 
+    // gulp source doesn't matter, all files are referenced in options object above 
+   return gulp.src('app.js', { read: false })
+        .pipe(sonar(options))
+        .on('error', util.log);
+});
+
+gulp.task('nightwatch', function() {
+  gulp.src('nightwatch.js')
     .pipe(nightwatch({
-	configFile:'node_modules/nightwatch/bin/nightwatch.json'
-	}))
+      configFile: './nightwatch.json'
+      }))
+    });
 
 
-});
 
-
-gulp.task('default',['test','lint','mocha']); 
-
+gulp.task('default',['test','mocha','lint'],function(){});

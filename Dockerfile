@@ -1,29 +1,28 @@
 FROM www.cybage-docker-registry.com:9080/jenkins_node_slave:1.3
 
-RUN npm install gulp
-RUN npm install -g gulp
-RUN npm install -g gulp-cli
-
-
-
-RUN ln -s /usr/local/bin/gulp /usr/bin/gulp
 RUN ln -s /usr/local/bin/node /usr/bin/node
+RUN ln -s /usr/local/bin/gulp /usr/bin/gulp
 
-# Define working directory.
-RUN mkdir -p "/data/emsapp"
-WORKDIR /data/emsapp/
+#adding all the source code to /data/artifact
+RUN mkdir -p "/data/artifact"
+WORKDIR /data/artifact/
 
-# Define default command.
-CMD ["bash"]
+#Adding the required source code and dependencies for running the application
 
-ADD html html
+#for CI
+ADD node_modules node_modules
 ADD models models
-ADD routes routes
-ADD lib lib
-
+ADD html html
 ADD examples examples
+ADD lib lib
+ADD target target
+ADD routes routes
 ADD gatling gatling
-ADD selenium-server-standalone-2.47.1.jar server.js nightwatch.js package.json gulpfile.js ./
-#ENV $HOME=/
+ADD app.js gulpfile.js package.json selenium-server-standalone-2.47.1.jar nightwatch.json nightwatch.js ./
 
-EXPOSE 3003
+#Setting timezone to match time zone of sonar server
+RUN echo "Asia/Kolkata" > /etc/timezone && dpkg-reconfigure --frontend noninteractive tzdata
+
+VOLUME ['./tmp']
+ 
+EXPOSE 3010
