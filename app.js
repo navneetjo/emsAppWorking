@@ -17,7 +17,7 @@ app.use('/api', employees); //This is our route middleware
 
 
 var dbName = 'test';
-var connectionString = 'mongodb://172.27.59.42:27017/' + dbName;
+var connectionString = 'mongodb://172.27.59.185:27017/' + dbName;
 mongoose.connect(connectionString);
 //module.exports = app;
 
