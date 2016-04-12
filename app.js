@@ -11,8 +11,15 @@ app.use(bodyParser.json())
 
 //app.use(bodyParser.text({ type: 'text/html' }))
 
+
+
+
+
 app.use(bodyParser.urlencoded( { extended : true}));
 app.use('/api', employees); //This is our route middleware
+
+
+
 
 
 
@@ -27,4 +34,6 @@ app.set('port', process.env.PORT || 3010);
  
 var server = app.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + server.address().port);
+ console.log('Express server listening on port ' + server.address().port);
+ 
 });
