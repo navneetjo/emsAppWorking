@@ -1,5 +1,3 @@
 adding new file for checking bamboo and fishey-crucible integration 
 
 deleting madhavi
-
-check for jira issue
